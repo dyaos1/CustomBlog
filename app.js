@@ -2,57 +2,92 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-const Board = express.Router()
+const postRouter = express.Router()
+const createRouter = express.Router()
+const updateRouter = express.Router()
 
 const POST = require('./src/post')
 
-app.use(express.json())
+app.use(express.json()) // json
+app.set('view engine', 'pug'); // pug
+app.use(express.urlencoded({ extended: true })) // req.body
 
-
-Board.param('id', (req, res, next, value) => {
-    req.boardnumber = value
+postRouter.param('id', (req, res, next, value) => {
+    req.postRouternumber = value
     next()
 })
 
-app.get('/', (req, res) => {
-  res.send('list of board')
+
+
+app.get('/', function (req, res) {
+    res.render('index', { title: 'Hey', message: 'Hello there!'});
+  });
+
+postRouter.get('/', (req, res) => {  
+    res.render('home', { title: 'Phrase', message: 'Qoutes', posts: POST})
 })
 
-Board.get('/home', (req, res) => {
-    const longStringOfPosts = POST.reduce((acc, v) => 
-        acc + v.id.toString() + " | " + v.title.toString() + " | " + v.nickname.toString() + "<br>",
-        ""
-    )
-    res.send(longStringOfPosts)
-})
+postRouter.get('/:id/', (req, res) => {
 
-Board.get('/:id/', (req, res) => {
-    const result = POST.filter((e)=>e.id == Number(req.boardnumber))[0]
+    console.log(typeof req.postRouternumber)
+    const result = POST.find((e) => e.id.toString() === req.postRouternumber)
+    console.log(result)
+    console.log(typeof result.id)
     if (result === undefined) {
         res.writeHead(404);
         res.end('not found');
     } else {
-        res.send(`author: ${result.nickname}<br>title: ${result.title}<br>content:${result.content}`)
+        const id = result.id
+        res.render('post', { title: id, post: result})
     }
 })
 
-Board.post('/create', (req, res) => {
+createRouter.get('/', (req, res) => {
+    res.render('create_post', { title:"create post", message:"create new post" })
+})
+
+createRouter.post('/', (req, res) => {
+    const { title, content, nickname } = req.body
+
     const newPost = {
-        id: POST.length+1,
-        title: req.body.title,
-        content: req.body.content,
-        nickname: req.body.nickname
+        id: POST.length,
+        nickname: nickname,
+        title: title,
+        content: content,
     }
-    POST.push(newPost)
-    const longStringOfPosts = POST.reduce((acc, v) => 
-        acc + v.id.toString() + " | " + v.title.toString() + " | " + v.nickname.toString() + "<br>",
-        ""
-    )
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-    res.send(longStringOfPosts)
+    console.log(newPost)
+    res.render('post', {title: newPost.id, post: newPost})
 })
 
-app.use(Board)
+
+updateRouter.param('id', (req, res, next, value) => {
+    req.updateRouternumber = value
+    next()
+})
+
+updateRouter
+.route('/:id')
+.get((req, res) => {
+    const id = req.updateRouternumber
+    const targetPost = POST.find((e) => e.id.toString() === id )
+    res.render('update_post', { title: 'update', message: `update post: ${id}`, post: targetPost})
+})
+.post((req, res)=>{
+    const { title, content, nickname } = req.body
+    const id = req.updateRouternumber
+    const newPost = {
+        id: id,
+        nickname: nickname,
+        title: title,
+        content: content,
+    }
+    console.log(newPost)
+    res.render('post', {title: newPost.id, post: newPost})
+})
+
+app.use('/posts', postRouter)
+app.use('/create', createRouter)
+app.use('/update', updateRouter)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

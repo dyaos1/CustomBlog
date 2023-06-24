@@ -1,0 +1,19 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    table 
+        th 번호
+        th 제목
+        th 작성자
+        each post in posts
+          tr
+            td
+              span= post.id
+            td 
+              a(href=`/posts/${post.id}/`)= post.title
+            td
+              span= post.nickname
+    a(href="/create")
+      button create

@@ -1,0 +1,14 @@
+html
+  head
+    title= title
+  body
+    h1= message
+      form(action='/create' method='post')
+        p title
+        input(type="text" name="title" value=`${post.title}`)
+        p content
+        textarea(name='content')= `${post.content}`
+        p nickname
+        input(type="text" name='nickname' value=`${post.nickname}`)
+        p 
+        input(type="submit" value="update")

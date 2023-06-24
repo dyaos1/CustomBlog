@@ -1,0 +1,11 @@
+html
+  head
+    title= title
+  body
+    a(href="/posts/") home
+    h1= post.title 
+    div= post.nickname
+    p= post.content
+
+    form(action=`/update/${post.id}` method='get')
+      input(type="submit" value="update")
