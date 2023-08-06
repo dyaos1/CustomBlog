@@ -3,6 +3,17 @@ html
     title= title
   body
     h1= message
+
+    if userSession.authorized
+      p welcome #{userSession.username} !!
+      a(href="/user/logout")
+        button logout
+    else 
+      p you are anonymous
+      a(href="/user/login")
+        button login
+
+    p 
     table 
         th 번호
         th 제목
@@ -15,5 +26,6 @@ html
               a(href=`/posts/${post.id}/`)= post.title
             td
               span= post.nickname
+    p 
     a(href="/create")
       button create

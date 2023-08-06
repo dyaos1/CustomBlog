@@ -9,3 +9,7 @@ html
 
     form(action=`/update/${post.id}` method='get')
       input(type="submit" value="update")
+
+    form(action='/delete' method='post')
+      input(type="hidden" value=`${post.id}` name="delete")
+      input(type="submit" value="delete" )
